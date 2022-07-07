@@ -20,7 +20,7 @@
 
 /*! BMP3 shuttle board ID */
 //#define BMP3_SHUTTLE_ID  0x50
-#define BMP3_SHUTTLE_ID  0x8F
+#define BMP3_SHUTTLE_ID  0xD3
 
 
 /* Variable to store the device address */
@@ -43,35 +43,53 @@ static const nrf_drv_twi_t m_twi = NRF_DRV_TWI_INSTANCE(TWI_INSTANCE_ID);
 //BMP3_INTF_RET_TYPE bmp3_i2c_read(uint8_t subaddress, uint8_t *pBuffer, uint32_t ReadNumbr, void *intf_ptr)
 //{
 //      uint8_t dev_addr = *(uint8_t*)intf_ptr;
-//      uint16_t DevAddress = dev_addr << 1;
+//      //uint16_t DevAddress = dev_addr << 1;
 
 //      // send register address
 //      //HAL_I2C_Master_Transmit(&I2C_HANDLE, DevAddress, &subaddress, 1, BUS_TIMEOUT);
-//      nrf_drv_twi_rx(&m_twi, DevAddress, pBuffer, ReadNumbr);
-//      return 0;
+//      return nrf_drv_twi_rx(&m_twi, dev_addr, pBuffer, ReadNumbr);
 //}
 
 
 
-BMP3_INTF_RET_TYPE bmp3_i2c_read(uint8_t subaddress, uint8_t *pBuffer, uint32_t ReadNumbr, void *intf_ptr)
+BMP3_INTF_RET_TYPE bmp3_i2c_read(uint8_t reg_addr, uint8_t *reg_data, uint32_t len, void *intf_ptr)
 {
-    ret_code_t err_code;
-    uint8_t reg = addr;
-    uint8_t data;
+    uint8_t dev_addr = *(uint8_t*)intf_ptr; 
+    ret_code_t ret_code;
+    ret_code = nrf_drv_twi_tx(&m_twi, dev_addr, &reg_addr, 1, false);
+    if(ret_code != NRF_SUCCESS)
+    {
+        return ret_code;
+    }
 
-    uint8_t dev_addr = *(uint8_t*)intf_ptr;
-    uint16_t DevAddress = dev_addr << 1;
-
-    err_code = nrf_drv_twi_tx(&m_twi, DevAddress, &reg, 1, false);
-    APP_ERROR_CHECK(err_code);
-
-    err_code = nrf_drv_twi_rx(&m_twi, DevAddress, &data, sizeof(data));
-    APP_ERROR_CHECK(err_code);
-
-    return err_code;
+    ret_code = nrf_drv_twi_rx(&m_twi, dev_addr, reg_data, len);
+    if (ret_code == NRF_SUCCESS) 
+        return BMP3_INTF_RET_SUCCESS;
+    else 
+        return 1;
 }
 
 
+
+
+BMP3_INTF_RET_TYPE bmp3_i2c_write(uint8_t reg_addr, const uint8_t *reg_data, uint32_t len, void *intf_ptr)
+{
+    uint8_t dev_addr = *(uint8_t*)intf_ptr;
+
+    ret_code_t ret_code;
+    ret_code = nrf_drv_twi_tx(&m_twi, dev_addr, reg_data, len, false); 
+    if (ret_code == NRF_SUCCESS) 
+        return BMP3_INTF_RET_SUCCESS;
+    else 
+        return 1;
+    
+
+
+
+    //return nrf_drv_twi_tx(dev_addr, reg_addr, (uint8_t *)reg_data, (uint16_t)len, false);
+
+    //return nrf_drv_twi_tx (nrf_drv_twi_t const *p_instance, dev_addr, uint8_t const *p_data, (uint8_t)len, bool no_stop)
+}
 
 
 /*!
@@ -95,14 +113,14 @@ BMP3_INTF_RET_TYPE bmp3_i2c_read(uint8_t subaddress, uint8_t *pBuffer, uint32_t 
 /*!
  * I2C write function map to COINES platform
  */
-BMP3_INTF_RET_TYPE bmp3_i2c_write(uint8_t reg_addr, const uint8_t *reg_data, uint32_t len, void *intf_ptr)
-{
-    uint8_t dev_addr = *(uint8_t*)intf_ptr;
+//BMP3_INTF_RET_TYPE bmp3_i2c_write(uint8_t reg_addr, const uint8_t *reg_data, uint32_t len, void *intf_ptr)
+//{
+//    uint8_t dev_addr = *(uint8_t*)intf_ptr;
 
-    return nrf_drv_twi_tx(dev_addr, reg_addr, (uint8_t *)reg_data, (uint16_t)len, false);
+//    return nrf_drv_twi_tx(dev_addr, reg_addr, (uint8_t *)reg_data, (uint16_t)len, false);
 
-    //return nrf_drv_twi_tx (nrf_drv_twi_t const *p_instance, dev_addr, uint8_t const *p_data, (uint8_t)len, bool no_stop)
-}
+//    //return nrf_drv_twi_tx (nrf_drv_twi_t const *p_instance, dev_addr, uint8_t const *p_data, (uint8_t)len, bool no_stop)
+//}
 
 /*!
  * Delay function map to COINES platform
