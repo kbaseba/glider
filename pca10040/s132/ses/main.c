@@ -638,18 +638,14 @@ int main(void)
      */
     rslt = bmp3_interface_init(&dev, BMP3_I2C_INTF);
     bmp3_check_rslt("bmp3_interface_init", rslt);
-    NRF_LOG_FLUSH();
 
     rslt = bmp3_init(&dev);
     bmp3_check_rslt("bmp3_init", rslt);
-    NRF_LOG_FLUSH();
     
     settings.int_settings.drdy_en = BMP3_ENABLE;
     settings.press_en = BMP3_ENABLE;
     settings.temp_en = BMP3_ENABLE;
     
-
-    // TESTING
     settings.odr_filter.press_os = BMP3_OVERSAMPLING_2X;
     settings.odr_filter.temp_os = BMP3_OVERSAMPLING_2X;
     settings.odr_filter.odr = BMP3_ODR_100_HZ;
@@ -659,25 +655,23 @@ int main(void)
 
     rslt = bmp3_set_sensor_settings(settings_sel, &settings, &dev);
     bmp3_check_rslt("bmp3_set_sensor_settings", rslt);
-    NRF_LOG_FLUSH();
 
     settings.op_mode = BMP3_MODE_NORMAL;
     rslt = bmp3_set_op_mode(&settings, &dev);
     bmp3_check_rslt("bmp3_set_op_mode", rslt);
-    NRF_LOG_FLUSH();
-    // ENDTESTING
     
-    int count = 0;
     while (true)
     {
-        count++;
-        NRF_LOG_INFO("Iteration: %d\n", count);
         rslt = bmp3_get_status(&status, &dev);
         bmp3_check_rslt("bmp3_get_status", rslt);
+
+        //status.intr.drdy = BMP3_ENABLE;
 
         /* Read temperature and pressure data iteratively based on data ready interrupt */
         if ((rslt == BMP3_OK) && (status.intr.drdy == BMP3_ENABLE))
         {
+            //status.intr.drdy = BMP3_DISABLE;
+            
             /*
              * First parameter indicates the type of data to be read
              * BMP3_PRESS_TEMP : To read pressure and temperature data
@@ -692,7 +686,7 @@ int main(void)
             bmp3_check_rslt("bmp3_get_status", rslt);
 
             #ifdef BMP3_FLOAT_COMPENSATION
-            NRF_LOG_INFO("Data[%d]  T: %.2f deg C, P: %.2f Pa\n", loop, (data.temperature), (data.pressure));
+            NRF_LOG_INFO("Data[%d]  T: %d deg C, P: %d Pa\n", loop, (data.temperature), (data.pressure));
             #else
             NRF_LOG_INFO("Data[%d]  T: %ld deg C, P: %lu Pa\n", loop, (long int)(int32_t)(data.temperature / 100),
                    (long unsigned int)(uint32_t)(data.pressure / 100));
