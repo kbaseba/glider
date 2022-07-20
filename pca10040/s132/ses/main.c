@@ -592,8 +592,8 @@ int main(void)
 //    leds_init();
 #endif //UART_PRINTING_ENABLED
 
-    power_management_init();
-    nrf_pwr_mgmt_run();
+    //power_management_init();
+    //nrf_pwr_mgmt_run();
 
     //nrf_gpio_cfg_output(17);
     //nrf_gpio_cfg_output(14);
@@ -622,16 +622,14 @@ int main(void)
     NRF_LOG_FLUSH();
     
     // BMP Config
-    int8_t rslt = 0;
+    int8_t rslt;
     uint8_t loop = 0;
-    uint8_t settings_sel;
+    uint16_t settings_sel;
     struct bmp3_dev dev;
     struct bmp3_data data = { 0 };
     struct bmp3_settings settings = { 0 };
     struct bmp3_status status = { { 0 } };
-    
-    NRF_LOG_INFO("Chip ID 0x%X\n", dev.chip_id);
-    NRF_LOG_FLUSH();
+
     /* Interface reference is given as a parameter
      *         For I2C : BMP3_I2C_INTF
      *         For SPI : BMP3_SPI_INTF
@@ -641,11 +639,11 @@ int main(void)
 
     rslt = bmp3_init(&dev);
     bmp3_check_rslt("bmp3_init", rslt);
-    
+
     settings.int_settings.drdy_en = BMP3_ENABLE;
     settings.press_en = BMP3_ENABLE;
     settings.temp_en = BMP3_ENABLE;
-    
+
     settings.odr_filter.press_os = BMP3_OVERSAMPLING_2X;
     settings.odr_filter.temp_os = BMP3_OVERSAMPLING_2X;
     settings.odr_filter.odr = BMP3_ODR_100_HZ;
@@ -659,19 +657,17 @@ int main(void)
     settings.op_mode = BMP3_MODE_NORMAL;
     rslt = bmp3_set_op_mode(&settings, &dev);
     bmp3_check_rslt("bmp3_set_op_mode", rslt);
-    
+
     while (true)
     {
         rslt = bmp3_get_status(&status, &dev);
         bmp3_check_rslt("bmp3_get_status", rslt);
 
-        //status.intr.drdy = BMP3_ENABLE;
+        status.intr.drdy = BMP3_ENABLE;
 
         /* Read temperature and pressure data iteratively based on data ready interrupt */
         if ((rslt == BMP3_OK) && (status.intr.drdy == BMP3_ENABLE))
         {
-            //status.intr.drdy = BMP3_DISABLE;
-            
             /*
              * First parameter indicates the type of data to be read
              * BMP3_PRESS_TEMP : To read pressure and temperature data
@@ -686,7 +682,9 @@ int main(void)
             bmp3_check_rslt("bmp3_get_status", rslt);
 
             #ifdef BMP3_FLOAT_COMPENSATION
-            NRF_LOG_INFO("Data[%d]  T: %d deg C, P: %d Pa\n", loop, (data.temperature), (data.pressure));
+            NRF_LOG_INFO("Data[%d]  T: " NRF_LOG_FLOAT_MARKER, loop, NRF_LOG_FLOAT(data.temperature));
+            NRF_LOG_INFO(" deg C, P: " NRF_LOG_FLOAT_MARKER, NRF_LOG_FLOAT(data.pressure));
+            //NRF_LOG_INFO("Data[%d]  T: %d deg C, P: %d Pa\n", loop, (data.temperature), (data.pressure));
             #else
             NRF_LOG_INFO("Data[%d]  T: %ld deg C, P: %lu Pa\n", loop, (long int)(int32_t)(data.temperature / 100),
                    (long unsigned int)(uint32_t)(data.pressure / 100));
@@ -694,8 +692,10 @@ int main(void)
 
             loop = loop + 1;
         }
+
         NRF_LOG_FLUSH();
     }
+
 
 
 
