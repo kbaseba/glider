@@ -74,13 +74,6 @@ void bmp3_delay_us(uint32_t period, void *intf_ptr);
  */
 void bmp3_check_rslt(const char api_name[], int8_t rslt);
 
-/*!
- *  @brief Deinitializes coines platform
- *
- *  @return void.
- */
-void bmp3_coines_deinit(void);
-
 #ifdef __cplusplus
 }
 #endif /*__cplusplus */

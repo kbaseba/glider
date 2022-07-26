@@ -463,45 +463,45 @@ void twi_init (void)
     nrf_drv_twi_enable(&m_twi);
 }
 
-bool write_reg(uint8_t addr, uint8_t data){
-    ret_code_t err_code;
-    uint8_t reg[2] = {addr, data};
+//bool write_reg(uint8_t addr, uint8_t data){
+//    ret_code_t err_code;
+//    uint8_t reg[2] = {addr, data};
 
-    err_code = nrf_drv_twi_tx(&m_twi, HDC2010_ADDR, (uint8_t const *) &reg, sizeof(reg), false);
-    if (err_code == NRF_SUCCESS) {
-       return true;
-    } else {
-       return false;
-    }
-}
+//    err_code = nrf_drv_twi_tx(&m_twi, HDC2010_ADDR, (uint8_t const *) &reg, sizeof(reg), false);
+//    if (err_code == NRF_SUCCESS) {
+//       return true;
+//    } else {
+//       return false;
+//    }
+//}
 
-uint8_t read_reg(uint8_t addr){
-    ret_code_t err_code;
-    uint8_t reg = addr;
-    uint8_t data;
+//uint8_t read_reg(uint8_t addr){
+//    ret_code_t err_code;
+//    uint8_t reg = addr;
+//    uint8_t data;
 
-    err_code = nrf_drv_twi_tx(&m_twi, HDC2010_ADDR, &reg, 1, false);
-    APP_ERROR_CHECK(err_code);
+//    err_code = nrf_drv_twi_tx(&m_twi, HDC2010_ADDR, &reg, 1, false);
+//    APP_ERROR_CHECK(err_code);
 
-    err_code = nrf_drv_twi_rx(&m_twi, HDC2010_ADDR, &data, sizeof(data));
-    APP_ERROR_CHECK(err_code);
+//    err_code = nrf_drv_twi_rx(&m_twi, HDC2010_ADDR, &data, sizeof(data));
+//    APP_ERROR_CHECK(err_code);
 
-    return data;
-}
+//    return data;
+//}
 
-//without disable 29-30 uA dev board
-//with disable 36 uA
-//async 2 Hz 33 uA
-uint16_t read_temp(void){
-    if(write_reg(0x0F, 0x03)) {
-        uint16_t reading = read_reg(0x01);
-        reading = reading << 8;
-        reading |= read_reg(0x00);
-        return reading;
-    } else {
-        return -1;
-    }
-}
+////without disable 29-30 uA dev board
+////with disable 36 uA
+////async 2 Hz 33 uA
+//uint16_t read_temp(void){
+//    if(write_reg(0x0F, 0x03)) {
+//        uint16_t reading = read_reg(0x01);
+//        reading = reading << 8;
+//        reading |= read_reg(0x00);
+//        return reading;
+//    } else {
+//        return -1;
+//    }
+//}
 
 #define START_WAIT_TIME_MS 499
 #define STOP_WAIT_TIME_MS 1
@@ -617,6 +617,7 @@ int main(void)
     //  //nrf_delay_ms(2000);
     //}
 
+    twi_init();
 
     NRF_LOG_INFO("**************");
     NRF_LOG_FLUSH();
@@ -663,8 +664,6 @@ int main(void)
         rslt = bmp3_get_status(&status, &dev);
         bmp3_check_rslt("bmp3_get_status", rslt);
 
-        status.intr.drdy = BMP3_ENABLE;
-
         /* Read temperature and pressure data iteratively based on data ready interrupt */
         if ((rslt == BMP3_OK) && (status.intr.drdy == BMP3_ENABLE))
         {
@@ -682,9 +681,9 @@ int main(void)
             bmp3_check_rslt("bmp3_get_status", rslt);
 
             #ifdef BMP3_FLOAT_COMPENSATION
-            NRF_LOG_INFO("Data[%d]  T: " NRF_LOG_FLOAT_MARKER, loop, NRF_LOG_FLOAT(data.temperature));
-            NRF_LOG_INFO(" deg C, P: " NRF_LOG_FLOAT_MARKER, NRF_LOG_FLOAT(data.pressure));
-            //NRF_LOG_INFO("Data[%d]  T: %d deg C, P: %d Pa\n", loop, (data.temperature), (data.pressure));
+            //NRF_LOG_INFO("Data[%d]  T: " NRF_LOG_FLOAT_MARKER, loop, NRF_LOG_FLOAT(data.temperature));
+            //NRF_LOG_INFO(" deg C, P: " NRF_LOG_FLOAT_MARKER, NRF_LOG_FLOAT(data.pressure));
+              NRF_LOG_INFO("Data[%d]  T: %d deg C, P: %d Pa\n", loop, (data.temperature), (data.pressure));
             #else
             NRF_LOG_INFO("Data[%d]  T: %ld deg C, P: %lu Pa\n", loop, (long int)(int32_t)(data.temperature / 100),
                    (long unsigned int)(uint32_t)(data.pressure / 100));
