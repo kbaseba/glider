@@ -129,7 +129,7 @@ BMP3_INTF_RET_TYPE bmp3_interface_init(struct bmp3_dev *bmp3, uint8_t intf){
         /* Bus configuration : I2C */
         if (intf == BMP3_I2C_INTF){
 
-         NRF_LOG_INFO("I2C Interface\n");
+         //NRF_LOG_INFO("I2C Interface\n");
          dev_addr = BMP3_ADDR_I2C_PRIM;
          bmp3->read = bmp3_i2c_read;
          bmp3->write = bmp3_i2c_write;

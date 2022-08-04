@@ -72,6 +72,7 @@
 #include "nrf_drv_twi.h"
 #include "bmp3.h"
 #include "common.h"
+#include "nrf_drv_gpiote.h"
 
 # define UART_PRINTING_ENABLED 1
 
@@ -463,46 +464,6 @@ void twi_init (void)
     nrf_drv_twi_enable(&m_twi);
 }
 
-//bool write_reg(uint8_t addr, uint8_t data){
-//    ret_code_t err_code;
-//    uint8_t reg[2] = {addr, data};
-
-//    err_code = nrf_drv_twi_tx(&m_twi, HDC2010_ADDR, (uint8_t const *) &reg, sizeof(reg), false);
-//    if (err_code == NRF_SUCCESS) {
-//       return true;
-//    } else {
-//       return false;
-//    }
-//}
-
-//uint8_t read_reg(uint8_t addr){
-//    ret_code_t err_code;
-//    uint8_t reg = addr;
-//    uint8_t data;
-
-//    err_code = nrf_drv_twi_tx(&m_twi, HDC2010_ADDR, &reg, 1, false);
-//    APP_ERROR_CHECK(err_code);
-
-//    err_code = nrf_drv_twi_rx(&m_twi, HDC2010_ADDR, &data, sizeof(data));
-//    APP_ERROR_CHECK(err_code);
-
-//    return data;
-//}
-
-////without disable 29-30 uA dev board
-////with disable 36 uA
-////async 2 Hz 33 uA
-//uint16_t read_temp(void){
-//    if(write_reg(0x0F, 0x03)) {
-//        uint16_t reading = read_reg(0x01);
-//        reading = reading << 8;
-//        reading |= read_reg(0x00);
-//        return reading;
-//    } else {
-//        return -1;
-//    }
-//}
-
 #define START_WAIT_TIME_MS 499
 #define STOP_WAIT_TIME_MS 1
 // #define STOP_WAIT_TIME_MS 10000
@@ -580,6 +541,53 @@ static void advertisingUpdateTimerHandler(void * p_context)
 }
 
 
+
+
+#define THRESHOLD 103000
+#define DELTA_THRESH 0
+#define SUPERVISORY_PIN 7
+#define WATCHDOG_PIN 12
+#define MOSFET_PIN 17
+#define SWITCH_PIN 29
+
+uint8_t transitioned = 0;
+int32_t last_press = 101325;
+int32_t curr_press = 101325;
+int32_t delta;
+
+void input_pin_handle(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
+{
+    // Configure tasks upon interrupt in this event handler
+    //NRF_LOG_INFO("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    
+}
+
+void gpio_init()
+{
+    ret_code_t err_code;
+    
+    // Init GPIOTE
+    err_code = nrf_drv_gpiote_init();
+    APP_ERROR_CHECK(err_code);
+
+    // Configure pins
+    //nrf_gpio_cfg_output(SWITCH_PIN);
+    //nrf_gpio_cfg_output(WATCHDOG_PIN);
+    nrf_gpio_cfg_output(MOSFET_PIN);
+    //nrf_gpio_cfg_input(SUPERVISORY_PIN, NRF_GPIO_PIN_NOPULL);
+    
+    // Config struct
+    nrf_drv_gpiote_in_config_t in_config = GPIOTE_CONFIG_IN_SENSE_LOTOHI(false);
+    in_config.pull = NRF_GPIO_PIN_PULLUP;
+    
+    // Init int_pin
+    err_code = nrf_drv_gpiote_in_init(12, &in_config, input_pin_handle);
+    APP_ERROR_CHECK(err_code);
+
+    // Enable Int
+    nrf_drv_gpiote_in_event_enable(12, true);
+}
+
 /**
  * @brief Function for application main entry.
  */
@@ -588,43 +596,16 @@ int main(void)
     // Initialize.
 
 #ifdef UART_PRINTING_ENABLED
-    log_init();
+    //log_init();
 //    leds_init();
 #endif //UART_PRINTING_ENABLED
 
-    //power_management_init();
-    //nrf_pwr_mgmt_run();
-
-    //nrf_gpio_cfg_output(17);
-    //nrf_gpio_cfg_output(14);
-
-    //nrf_gpio_pin_set(14);
-    //nrf_delay_us(1);
-    //nrf_gpio_pin_clear(14);
-
-    //nrf_gpio_cfg_input(7, NRF_GPIO_PIN_NOPULL);
-    
-    //while(true) {
-    //  if(nrf_gpio_pin_read(7) == 1){
-    //    nrf_gpio_pin_set(17);
-    //    nrf_delay_ms(1);
-    //    nrf_pwr_mgmt_run();
-    //  } else {
-    //    nrf_gpio_pin_clear(17);
-    //    nrf_pwr_mgmt_run();
-    //  }
-    //  nrf_pwr_mgmt_run();
-    //  //nrf_delay_ms(2000);
-    //}
-
     twi_init();
-
-    NRF_LOG_INFO("**************");
-    NRF_LOG_FLUSH();
+    gpio_init();
     
     // BMP Config
     int8_t rslt;
-    uint8_t loop = 0;
+    //uint8_t loop = 0;
     uint16_t settings_sel;
     struct bmp3_dev dev;
     struct bmp3_data data = { 0 };
@@ -645,9 +626,16 @@ int main(void)
     settings.press_en = BMP3_ENABLE;
     settings.temp_en = BMP3_ENABLE;
 
-    settings.odr_filter.press_os = BMP3_OVERSAMPLING_2X;
-    settings.odr_filter.temp_os = BMP3_OVERSAMPLING_2X;
-    settings.odr_filter.odr = BMP3_ODR_100_HZ;
+    settings.odr_filter.press_os = BMP3_OVERSAMPLING_8X;
+    settings.odr_filter.temp_os = BMP3_NO_OVERSAMPLING;
+    // Sample temp/press 1/1.28s
+    settings.odr_filter.odr = BMP3_ODR_0_78_HZ;
+    // Sample temp/press 1/640ms
+    //settings.odr_filter.odr = BMP3_ODR_1_5_HZ;
+    // Sample temp/press 1/10.24s
+    //settings.odr_filter.odr = BMP3_ODR_0_1_HZ;
+
+    settings.odr_filter.iir_filter = BMP3_IIR_FILTER_COEFF_3;
 
     settings_sel = BMP3_SEL_PRESS_EN | BMP3_SEL_TEMP_EN | BMP3_SEL_PRESS_OS | BMP3_SEL_TEMP_OS | BMP3_SEL_ODR |
                    BMP3_SEL_DRDY_EN;
@@ -658,9 +646,12 @@ int main(void)
     settings.op_mode = BMP3_MODE_NORMAL;
     rslt = bmp3_set_op_mode(&settings, &dev);
     bmp3_check_rslt("bmp3_set_op_mode", rslt);
+   
+    power_management_init();
+    nrf_pwr_mgmt_run();
 
     while (true)
-    {
+    {       
         rslt = bmp3_get_status(&status, &dev);
         bmp3_check_rslt("bmp3_get_status", rslt);
 
@@ -680,106 +671,79 @@ int main(void)
             rslt = bmp3_get_status(&status, &dev);
             bmp3_check_rslt("bmp3_get_status", rslt);
 
-            #ifdef BMP3_FLOAT_COMPENSATION
-            //NRF_LOG_INFO("Data[%d]  T: " NRF_LOG_FLOAT_MARKER, loop, NRF_LOG_FLOAT(data.temperature));
-            //NRF_LOG_INFO(" deg C, P: " NRF_LOG_FLOAT_MARKER, NRF_LOG_FLOAT(data.pressure));
-              NRF_LOG_INFO("Data[%d]  T: %d deg C, P: %d Pa\n", loop, (data.temperature), (data.pressure));
-            #else
-            NRF_LOG_INFO("Data[%d]  T: %ld deg C, P: %lu Pa\n", loop, (long int)(int32_t)(data.temperature / 100),
-                   (long unsigned int)(uint32_t)(data.pressure / 100));
-            #endif
+            //NRF_LOG_INFO("T: %d deg C, P: %d Pa Delta: %d Pa\n", (data.temperature), (data.pressure), delta);
+            //NRF_LOG_FLUSH();
 
-            loop = loop + 1;
-        }
+            if (transitioned == 0) 
+            {
+                last_press = curr_press;
+                curr_press = data.pressure;
+                delta = last_press - curr_press;
 
-        NRF_LOG_FLUSH();
-    }
+                //NRF_LOG_INFO("******************************");
+                //NRF_LOG_FLUSH();
 
+                /**** Insert Conditional Here ****
+                  1. Make sure delta is less than 0
+                  2. Compare data.pressure against a certain threshold (undecided)
 
+                  Read supervisory, if supervisory is high (yellow from volt monitor) toggle output pin to mosfet
+                */
+                if (delta < DELTA_THRESH)
+                {
+                    //NRF_LOG_INFO("_____________________________");
+                    //NRF_LOG_FLUSH();
 
+                    if (data.pressure > THRESHOLD)
+                    {
+                        //NRF_LOG_INFO("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                        //NRF_LOG_FLUSH();
 
+                        nrf_gpio_pin_set(MOSFET_PIN);
+                      
+                        // Toggle switch pin high if conditional passes
+                        //nrf_gpio_pin_set(SWITCH_PIN);
+                        // Toggle watchdog timer pin
+                        //nrf_gpio_pin_set(WATCHDOG_PIN);
+                        //nrf_delay_us(1);
+                        //nrf_gpio_pin_clear(WATCHDOG_PIN);
+                        // Check supervisory
+                        if (nrf_gpio_pin_read(SUPERVISORY_PIN) == 1) 
+                        {
+                            //NRF_LOG_INFO("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+                            //NRF_LOG_FLUSH();
 
-
-
-
-
-    timers_init();
-    
-    power_management_init();
-    //ble_stack_init();
-
-    // CUSTOM MAC ADDRESS
-    ble_gap_addr_t gap_addr;
-    //gap_addr.addr_type = BLE_GAP_ADDR_TYPE_RANDOM_STATIC;
-    //memcpy(&gap_addr.addr, BEACON_ADDR, sizeof(gap_addr.addr));
-    //gap_addr.addr[5] |= 0xc0; // 2 MSBit must be '11' for RANDOM_STATIC address, see v4.0, Vol 3, Part C, chapter 10.8
-    ret_code_t err_code = sd_ble_gap_addr_set(&gap_addr);
-    //APP_ERROR_CHECK(err_code);
-    //-------------------
-
-    // SET NAME
-    //ble_gap_conn_sec_mode_t sec_mode;
-    //BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode);
-    //err_code = sd_ble_gap_device_name_set(&sec_mode,
-    //                                 (const uint8_t *)DEVICE_NAME,
-    //                                  strlen(DEVICE_NAME));
-    //APP_ERROR_CHECK(err_code);
-    //-------------------
-
-    //advertising_init();
-
-    //sd_power_dcdc_mode_set(NRF_POWER_DCDC_ENABLE);
-
-    // Setup ADC and RTC
-    rtc_config();                                    //Configure RTC. The RTC will generate periodic interrupts. Requires 32kHz clock to operate.
-
-    //saadc_init();                                    //Initialize and start SAADC
-
-    // Turn on temperature sensor and init I2C
-    //nrf_gpio_cfg_output(5);  /* Initialize with default config of pin */
-    //nrf_gpio_pin_set(5);
-    //nrf_delay_ms(10);
-    //twi_init();
-    //read_temp();
+                            // Trigger mosfet pin
+                            nrf_gpio_pin_set(MOSFET_PIN);
+                            // Toggle switch pin
+                            nrf_gpio_pin_clear(SWITCH_PIN);
+                            // Set global transitioned to 1
+                            transitioned = 1;
+                        } else {
+                            nrf_pwr_mgmt_run();
+                        }
+                      
+                    } else {
+                        nrf_pwr_mgmt_run();
+                    }
+                } else {
+                    nrf_pwr_mgmt_run();
+                }
 
 
-    // Start execution.
-#ifdef UART_PRINTING_ENABLED
-    NRF_LOG_INFO("Beacon example started.");
-#endif //UART_PRINTING_ENABLED
-    //advertising_start();
+            } else {
+                /**** Send temp data over BLE ***/
+                
+                nrf_pwr_mgmt_run();
+            }
+            
+            // Unconditional sleep
+            nrf_pwr_mgmt_run();
 
-    // Timer
-    err_code = app_timer_create(&advertisingUpdateTimer,
-        APP_TIMER_MODE_SINGLE_SHOT,
-        advertisingUpdateTimerHandler);
-    APP_ERROR_CHECK(err_code);
-
-#ifdef UART_PRINTING_ENABLED
-    NRF_LOG_INFO("Starting advertising timer");
-#endif //UART_PRINTING_ENABLED
-
-    app_timer_start(advertisingUpdateTimer, APP_TIMER_TICKS(START_WAIT_TIME_MS), NULL);
-
-#ifdef UART_PRINTING_ENABLED
-    NRF_LOG_INFO("Advertising timer started.");
-#endif //UART_PRINTING_ENABLED
-
-    // Enter main loop.
-    for (;; )
-    {
-        if(m_saadc_calibrate == true)
+        } else
         {
-#ifdef UART_PRINTING_ENABLED
-            NRF_LOG_INFO("SAADC calibration starting...  \r\n");    //Print on UART
-#endif //UART_PRINTING_ENABLED	
-            while(nrf_drv_saadc_calibrate_offset() != NRF_SUCCESS); //Trigger calibration task
-            m_saadc_calibrate = false;
+            nrf_pwr_mgmt_run();
         }
-        idle_state_handle();
-#ifdef UART_PRINTING_ENABLED
-        NRF_LOG_FLUSH();
-#endif //UART_PRINTING_ENABLED
     }
 }
 
