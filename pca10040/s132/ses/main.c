@@ -543,7 +543,7 @@ static void advertisingUpdateTimerHandler(void * p_context)
 
 
 
-#define THRESHOLD 103000
+#define THRESHOLD 102000
 #define DELTA_THRESH 0
 #define SUPERVISORY_PIN 7
 #define WATCHDOG_PIN 12
@@ -558,7 +558,6 @@ int32_t delta;
 void input_pin_handle(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 {
     // Configure tasks upon interrupt in this event handler
-    //NRF_LOG_INFO("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     
 }
 
@@ -577,14 +576,15 @@ void gpio_init()
     //nrf_gpio_cfg_input(SUPERVISORY_PIN, NRF_GPIO_PIN_NOPULL);
     
     // Config struct
+    //lotohi - active high
     nrf_drv_gpiote_in_config_t in_config = GPIOTE_CONFIG_IN_SENSE_LOTOHI(false);
-    in_config.pull = NRF_GPIO_PIN_PULLUP;
+    in_config.pull = NRF_GPIO_PIN_NOPULL;
     
-    // Init int_pin
+    // Init interrupt_pin
     err_code = nrf_drv_gpiote_in_init(12, &in_config, input_pin_handle);
     APP_ERROR_CHECK(err_code);
 
-    // Enable Int
+    // Enable Interrupt
     nrf_drv_gpiote_in_event_enable(12, true);
 }
 
@@ -605,7 +605,6 @@ int main(void)
     
     // BMP Config
     int8_t rslt;
-    //uint8_t loop = 0;
     uint16_t settings_sel;
     struct bmp3_dev dev;
     struct bmp3_data data = { 0 };
