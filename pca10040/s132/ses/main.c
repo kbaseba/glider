@@ -92,7 +92,7 @@ static const nrf_drv_twi_t m_twi = NRF_DRV_TWI_INSTANCE(TWI_INSTANCE_ID);
 
 #define NON_CONNECTABLE_ADV_INTERVAL    MSEC_TO_UNITS(1000, UNIT_0_625_MS)  /**< The advertising interval for non-connectable advertisement (100 ms). This value can vary between 100ms to 10.24s). */
 
-#define DEVICE_NAME                     "HORNET3"                         /**< Name of device. Will be included in the advertising data. */
+#define DEVICE_NAME                     "GLIDER1"                          /**< Name of device. Will be included in the advertising data. */
 #define APP_TEMPERATURE_UUID            0x0918
 
 #define DEAD_BEEF                       0xDEADBEEF                         /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
@@ -312,35 +312,37 @@ static void advertising_init(void)
     ble_advdata_t advdata;
     uint8_t       flags = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE;
 
-    ble_uuid_t adv_uuids[] = 
-    {
-        {APP_TEMPERATURE_UUID, BLE_UUID_TYPE_BLE}
-    };
+    //ble_uuid_t adv_uuids[] = 
+    //{
+    //    {APP_TEMPERATURE_UUID, BLE_UUID_TYPE_BLE}
+    //};
 
-    // Temperature Service Data
-    uint8_t temp_data[] = 
-    {
-        APP_TEMPERATURE_LENGTH,
-        APP_TEMPERATURE_SERVICE_UUID,
-        APP_TEMPERATURE_UUID_LE,
-        0x00
-    };
-    uint8_array_t temperature_data_array;
-    temperature_data_array.p_data = (uint8_t *) temp_data;
-    temperature_data_array.size = sizeof(temp_data);
+    //// Temperature Service Data
+    //uint8_t temp_data[] = 
+    //{
+    //    APP_TEMPERATURE_LENGTH,
+    //    APP_TEMPERATURE_SERVICE_UUID,
+    //    APP_TEMPERATURE_UUID_LE,
+    //    0x00
+    //};
+    //uint8_array_t temperature_data_array;
+    //temperature_data_array.p_data = (uint8_t *) temp_data;
+    //temperature_data_array.size = sizeof(temp_data);
 
-    ble_advdata_service_data_t service_data;                        // Structure to hold Service Data.
-    service_data.service_uuid = APP_TEMPERATURE_UUID;                // Temp UUID to allow discoverability on iOS devices.
-    service_data.data = temperature_data_array;                     // Array for service advertisement data.
+    //ble_advdata_service_data_t service_data;                        // Structure to hold Service Data.
+    //service_data.service_uuid = APP_TEMPERATURE_UUID;                // Temp UUID to allow discoverability on iOS devices.
+    //service_data.data = temperature_data_array;                     // Array for service advertisement data.
 
     // Build and set advertising data.
     memset(&advdata, 0, sizeof(advdata));
+
     advdata.name_type               = BLE_ADVDATA_FULL_NAME; 
     advdata.flags                   = flags;
-    advdata.uuids_more_available.uuid_cnt = sizeof(adv_uuids) / sizeof(adv_uuids[0]);
-    advdata.uuids_more_available.p_uuids  = adv_uuids;
-    advdata.p_service_data_array    = &service_data;                // Pointer to Service Data structure.
-    advdata.service_data_count      = 1;
+
+    //advdata.uuids_more_available.uuid_cnt = sizeof(adv_uuids) / sizeof(adv_uuids[0]);
+    //advdata.uuids_more_available.p_uuids  = adv_uuids;
+    //advdata.p_service_data_array    = &service_data;                // Pointer to Service Data structure.
+    //advdata.service_data_count      = 1;
 
     // Initialize advertising parameters (used when starting advertising).
     memset(&m_adv_params, 0, sizeof(m_adv_params));
@@ -471,67 +473,20 @@ void twi_init (void)
 static void advertisingUpdateTimerHandler(void * p_context)
 {
     static bool restart = true;
-    uint32_t temp;
-    uint16_t raw_temp;
 
     if (restart) {
-//        // Read temperature sensor
-//        raw_temp = read_temp();
-//        temp = (raw_temp*16500)/65536-4000;
+        // payload
+        m_adv_data.adv_data.p_data[0] = 0x1E; // length
 
-//        // Format temperature data to transmit
-//        int8_t exponent = -2;
-//        uint32_t temperature_data = ((exponent & 0xFF) << 24) | (temp & 0x00FFFFFF);
-        
-//#ifdef UART_PRINTING_ENABLED
-//        NRF_LOG_INFO("Temperature: " NRF_LOG_FLOAT_MARKER, NRF_LOG_FLOAT(temp));
-//        NRF_LOG_FLUSH();
-//#endif //UART_PRINTING_ENABLED
-
-//        // Set payload
-//        uint32_t      err_code;
-//        ble_advdata_t advdata;
-//        uint8_t       flags = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE;
-
-//        ble_advdata_service_data_t service_data[2];
-        
-//        service_data[0].service_uuid = 0x1809;
-//        service_data[0].data.size    = sizeof(temperature_data);
-//        service_data[0].data.p_data  = (uint8_t *) &temperature_data;   // Array for service advertisement data.
-
-//        uint16_t vbat_mv = (((vbat_adc * 3600) / (4095)));
-//        uint8_t battery_data = (uint8_t) (((vbat_mv-1000) * 100) / 2000);
-    
-//        service_data[1].service_uuid = 0x180F;
-//        service_data[1].data.size    = sizeof(battery_data);
-//        service_data[1].data.p_data  = &battery_data;
-    
-        
-//        // Build and set advertising data.
-//        memset(&advdata, 0, sizeof(advdata));
-//        advdata.name_type               = BLE_ADVDATA_FULL_NAME; 
-//        advdata.flags                   = flags;
-//        advdata.p_service_data_array    = &service_data;                // Pointer to Service Data structure.
-//        advdata.service_data_count      = 2;
-
-//        // start advertising with m_adv_data and m_adv_params
-//        err_code = ble_advdata_encode(&advdata, m_adv_data.adv_data.p_data, &m_adv_data.adv_data.len);
-//        APP_ERROR_CHECK(err_code);
-
-//        sd_ble_gap_adv_set_configure(&m_adv_handle, &m_adv_data, &m_adv_params);
-//        advertising_start();
-
-     
-        
-        if (nrf_gpio_pin_read(7)) {
-          nrf_gpio_pin_set(17);
-        } else {
-          nrf_gpio_pin_clear(17);
+        for (int i = 1; i < m_adv_data.adv_data.len; i++) {
+            m_adv_data.adv_data.p_data[i] = i;
         }
 
+        // start advertising with m_adv_data and m_adv_params
+        sd_ble_gap_adv_set_configure(&m_adv_handle, &m_adv_data, &m_adv_params);
 
+        advertising_start();
 
-        
     } else {
         sd_ble_gap_adv_stop(m_adv_handle);
     }
@@ -542,13 +497,13 @@ static void advertisingUpdateTimerHandler(void * p_context)
 
 
 
-
 #define THRESHOLD 102000
 #define DELTA_THRESH 0
 #define SUPERVISORY_PIN 7
 #define WATCHDOG_PIN 12
 #define MOSFET_PIN 17
 #define SWITCH_PIN 29
+#define INTRPT_PIN 12
 
 uint8_t transitioned = 0;
 int32_t last_press = 101325;
@@ -570,10 +525,10 @@ void gpio_init()
     APP_ERROR_CHECK(err_code);
 
     // Configure pins
-    //nrf_gpio_cfg_output(SWITCH_PIN);
-    //nrf_gpio_cfg_output(WATCHDOG_PIN);
+    nrf_gpio_cfg_output(SWITCH_PIN);
+    nrf_gpio_cfg_output(WATCHDOG_PIN);
     nrf_gpio_cfg_output(MOSFET_PIN);
-    //nrf_gpio_cfg_input(SUPERVISORY_PIN, NRF_GPIO_PIN_NOPULL);
+    nrf_gpio_cfg_input(SUPERVISORY_PIN, NRF_GPIO_PIN_NOPULL);
     
     // Config struct
     //lotohi - active high
@@ -581,11 +536,11 @@ void gpio_init()
     in_config.pull = NRF_GPIO_PIN_NOPULL;
     
     // Init interrupt_pin
-    err_code = nrf_drv_gpiote_in_init(12, &in_config, input_pin_handle);
+    err_code = nrf_drv_gpiote_in_init(INTRPT_PIN, &in_config, input_pin_handle);
     APP_ERROR_CHECK(err_code);
 
     // Enable Interrupt
-    nrf_drv_gpiote_in_event_enable(12, true);
+    nrf_drv_gpiote_in_event_enable(INTRPT_PIN, true);
 }
 
 /**
@@ -595,14 +550,47 @@ int main(void)
 {
     // Initialize.
 
-#ifdef UART_PRINTING_ENABLED
-    //log_init();
-//    leds_init();
-#endif //UART_PRINTING_ENABLED
+    log_init();
 
     twi_init();
     gpio_init();
     
+    
+    /**************************************************/
+    
+    //ble_stack_init();
+    //timers_init();
+
+    //// CUSTOM MAC ADDRESS
+    //ble_gap_addr_t gap_addr;
+    //gap_addr.addr_type = BLE_GAP_ADDR_TYPE_RANDOM_STATIC;
+    //memcpy(&gap_addr.addr, BEACON_ADDR, sizeof(gap_addr.addr));
+    //gap_addr.addr[5] |= 0xc0; // 2 MSBit must be '11' for RANDOM_STATIC address, see v4.0, Vol 3, Part C, chapter 10.8
+    //ret_code_t err_code = sd_ble_gap_addr_set(&gap_addr);
+    //APP_ERROR_CHECK(err_code);
+    ////-------------------
+
+    //// SET NAME
+    //ble_gap_conn_sec_mode_t sec_mode;
+    //BLE_GAP_CONN_SEC_MODE_SET_OPEN(&sec_mode);
+    //err_code = sd_ble_gap_device_name_set(&sec_mode,
+    //                                 (const uint8_t *)DEVICE_NAME,
+    //                                  strlen(DEVICE_NAME));
+    //APP_ERROR_CHECK(err_code);
+    ////-------------------
+
+    //advertising_init();
+    
+    //err_code = app_timer_create(&advertisingUpdateTimer,
+    //    APP_TIMER_MODE_SINGLE_SHOT,
+    //    advertisingUpdateTimerHandler);
+    //APP_ERROR_CHECK(err_code);
+
+    //app_timer_start(advertisingUpdateTimer, APP_TIMER_TICKS(START_WAIT_TIME_MS), NULL);
+
+    /**************************************************/
+
+
     // BMP Config
     int8_t rslt;
     uint16_t settings_sel;
@@ -670,8 +658,8 @@ int main(void)
             rslt = bmp3_get_status(&status, &dev);
             bmp3_check_rslt("bmp3_get_status", rslt);
 
-            //NRF_LOG_INFO("T: %d deg C, P: %d Pa Delta: %d Pa\n", (data.temperature), (data.pressure), delta);
-            //NRF_LOG_FLUSH();
+            NRF_LOG_INFO("T: %d deg C, P: %d Pa Delta: %d Pa\n", (data.temperature), (data.pressure), delta);
+            NRF_LOG_FLUSH();
 
             if (transitioned == 0) 
             {
@@ -679,59 +667,45 @@ int main(void)
                 curr_press = data.pressure;
                 delta = last_press - curr_press;
 
-                //NRF_LOG_INFO("******************************");
-                //NRF_LOG_FLUSH();
-
                 /**** Insert Conditional Here ****
                   1. Make sure delta is less than 0
                   2. Compare data.pressure against a certain threshold (undecided)
 
                   Read supervisory, if supervisory is high (yellow from volt monitor) toggle output pin to mosfet
                 */
-                if (delta < DELTA_THRESH)
+                //if (delta < DELTA_THRESH && data.pressure > THRESHOLD)
+                if (data.temperature >= 26)
                 {
-                    //NRF_LOG_INFO("_____________________________");
-                    //NRF_LOG_FLUSH();
+                    // Toggle switch pin high if conditional passes
+                    nrf_gpio_pin_set(SWITCH_PIN);
+                    // Toggle watchdog timer pin
+                    nrf_gpio_pin_set(WATCHDOG_PIN);
+                    nrf_delay_us(1);
+                    nrf_gpio_pin_clear(WATCHDOG_PIN);
 
-                    if (data.pressure > THRESHOLD)
+                    // Check supervisory
+                    if (nrf_gpio_pin_read(SUPERVISORY_PIN) == 1) 
                     {
-                        //NRF_LOG_INFO("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                        //NRF_LOG_FLUSH();
-
+                        // Trigger mosfet pin
                         nrf_gpio_pin_set(MOSFET_PIN);
-                      
-                        // Toggle switch pin high if conditional passes
-                        //nrf_gpio_pin_set(SWITCH_PIN);
-                        // Toggle watchdog timer pin
-                        //nrf_gpio_pin_set(WATCHDOG_PIN);
-                        //nrf_delay_us(1);
-                        //nrf_gpio_pin_clear(WATCHDOG_PIN);
-                        // Check supervisory
-                        if (nrf_gpio_pin_read(SUPERVISORY_PIN) == 1) 
-                        {
-                            //NRF_LOG_INFO("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-                            //NRF_LOG_FLUSH();
-
-                            // Trigger mosfet pin
-                            nrf_gpio_pin_set(MOSFET_PIN);
-                            // Toggle switch pin
-                            nrf_gpio_pin_clear(SWITCH_PIN);
-                            // Set global transitioned to 1
-                            transitioned = 1;
-                        } else {
-                            nrf_pwr_mgmt_run();
-                        }
-                      
+                        nrf_delay_ms(100);
+                        nrf_gpio_pin_clear(MOSFET_PIN);
+                        // Toggle switch pin
+                        nrf_gpio_pin_clear(SWITCH_PIN);
+                        // Set global transitioned to 1
+                        transitioned = 1;
+                    
                     } else {
                         nrf_pwr_mgmt_run();
                     }
+                  
                 } else {
                     nrf_pwr_mgmt_run();
                 }
 
 
             } else {
-                /**** Send temp data over BLE ***/
+                /**** Send temp data over BLE ****/
                 
                 nrf_pwr_mgmt_run();
             }
