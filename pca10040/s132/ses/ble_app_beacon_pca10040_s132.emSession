@@ -28,7 +28,7 @@
   <ProjectSessionItem path="ble_app_beacon_pca10040_s132"/>
   <ProjectSessionItem path="ble_app_beacon_pca10040_s132;ble_app_beacon_pca10040_s132"/>
   <ProjectSessionItem path="ble_app_beacon_pca10040_s132;ble_app_beacon_pca10040_s132;Application"/>
-  <ProjectSessionItem path="ble_app_beacon_pca10040_s132;ble_app_beacon_pca10040_s132;None"/>
+  <ProjectSessionItem path="ble_app_beacon_pca10040_s132;ble_app_beacon_pca10040_s132;nRF_Libraries"/>
  </Project>
  <Register1>
   <RegisterWindow visibleNodes="CPU - Current Context/r0;CPU - Current Context/r1;CPU - Current Context/r2;CPU - Current Context/r3;CPU - Current Context/r4;CPU - Current Context/r5;CPU - Current Context/r6;CPU - Current Context/r7;CPU - Current Context/r8;CPU - Current Context/r9;CPU - Current Context/r10;CPU - Current Context/r11;CPU - Current Context/r12;CPU - Current Context/sp(r13);CPU - Current Context/lr(r14);CPU - Current Context/pc(r15);CPU - Current Context/apsr;CPU/r0;CPU/r1;CPU/r2;CPU/r3;CPU/r4;CPU/r5;CPU/r6;CPU/r7;CPU/r8;CPU/r9;CPU/r10;CPU/r11;CPU/r12;CPU/sp(r13);CPU/lr(r14);CPU/pc(r15);CPU/xpsr;CPU/MSP;CPU/PSP;CPU/PRIMASK;CPU/BASEPRI;CPU/FAULTMASK;CPU/CONTROL;CPU/internal" binaryNodes="" asciiNodes="" openNodes="CPU - Current Context" name="ble_app_beacon_pca10040_s132" decimalNodes="" octalNodes="" unsignedNodes=""/>
@@ -52,7 +52,7 @@
   <Watches active="1" update="Never">
    <Watchpoint expression="rslt" name="rslt" radix="-1" linenumber="3806" filename="bmp3.c"/>
    <Watchpoint expression="dev" name="dev" radix="-1" linenumber="3804" filename="bmp3.c"/>
-   <Watchpoint expression="drdy" name="drdy" radix="16" linenumber="655" filename="main.c"/>
+   <Watchpoint expression="drdy" name="drdy" radix="16" linenumber="643" filename="main.c"/>
   </Watches>
  </Watch1>
  <Watch2>
@@ -65,19 +65,22 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="620" useTextEdit="1" path="main.c" left="0" selected="1" top="568" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="21" y="126" useTextEdit="1" openedFrom="/Users/tilboon/Desktop/nRF5_SDK_15.2.0_9412b96/examples/hornet_tracker_firmware/hornet_beacon/pca10040/s132/ses/main.c" path="common.c" left="0" top="73" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="31" y="717" useTextEdit="1" path="main.c" left="0" top="697" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="145" useTextEdit="1" openedFrom="/Users/tilboon/Desktop/nRF5_SDK_15.2.0_9412b96/examples/hornet_tracker_firmware/hornet_beacon/pca10040/s132/ses/main.c" path="common.c" left="0" top="117" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="57" y="74" useTextEdit="1" path="common.h" left="0" top="13" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="18" y="46" useTextEdit="1" path="../../../bmp3.h" left="0" top="23" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="4405" useTextEdit="1" openedFrom="/Users/tilboon/Desktop/nRF5_SDK_15.2.0_9412b96/examples/hornet_tracker_firmware/hornet_beacon/pca10040/s132/ses/main.c" path="bmp3.c" left="0" top="4352" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="8" y="177" useTextEdit="1" openedFrom="/Users/tilboon/Desktop/nRF5_SDK_15.2.0_9412b96/examples/hornet_tracker_firmware/hornet_beacon/pca10040/s132/ses/main.c" path="bmp3_defs.h" left="0" top="154" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="3764" useTextEdit="1" openedFrom="/Users/tilboon/Desktop/nRF5_SDK_15.2.0_9412b96/examples/hornet_tracker_firmware/hornet_beacon/pca10040/s132/ses/main.c" path="bmp3.c" left="0" top="3747" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="8" y="177" useTextEdit="1" openedFrom="/Users/tilboon/Desktop/nRF5_SDK_15.2.0_9412b96/examples/hornet_tracker_firmware/hornet_beacon/pca10040/s132/ses/main.c" path="bmp3_defs.h" left="0" selected="1" top="154" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="25" y="346" useTextEdit="1" openedFrom="/Users/tilboon/Desktop/nRF5_SDK_15.2.0_9412b96/examples/hornet_tracker_firmware/hornet_beacon/pca10040/s132/ses/main.c" path="../../../../../../components/libraries/pwr_mgmt/nrf_pwr_mgmt.c" left="0" top="313" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="84" useTextEdit="1" path="../../../../../../components/libraries/log/src/nrf_log_backend_uart.c" left="0" top="50" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="396" useTextEdit="1" path="../../../../../../components/toolchain/cmsis/include/cmsis_gcc.h" left="0" top="378" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="396" useTextEdit="1" path="../../../../../../components/toolchain/cmsis/include/cmsis_gcc.h" left="0" top="379" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="8" y="86" useTextEdit="1" openedFrom="/Users/tilboon/Desktop/nRF5_SDK_15.2.0_9412b96/examples/hornet_tracker_firmware/hornet_beacon/pca10040/s132/ses/main.c" path="../../../../../../integration/nrfx/legacy/nrf_drv_gpiote.h" left="0" top="63" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="21" y="503" useTextEdit="1" openedFrom="/Users/tilboon/Desktop/nRF5_SDK_15.2.0_9412b96/examples/hornet_tracker_firmware/hornet_beacon/pca10040/s132/ses/main.c" path="../../../../../../modules/nrfx/hal/nrf_gpio.h" left="0" top="498" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="27" y="4277" useTextEdit="1" path="sdk_config.h" left="0" top="4224" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="71" useTextEdit="1" path="../../../../../../modules/nrfx/mdk/ses_startup_nrf52.s" left="0" top="54" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="47" y="1799" useTextEdit="1" openedFrom="/Users/tilboon/Desktop/nRF5_SDK_15.2.0_9412b96/examples/hornet_tracker_firmware/hornet_beacon/pca10040/s132/ses/main.c" path="../../../../../../components/softdevice/s132/headers/ble_gap.h" left="0" top="1776" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="99" useTextEdit="1" path="../../../../../../components/libraries/util/app_error_weak.c" left="0" top="77" codecName=""/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="445" useTextEdit="1" path="../../../../../../components/softdevice/s132/headers/nrf_nvic.h" left="0" top="428" codecName=""/>
  </Files>
- <EMStudioWindow activeProject="ble_app_beacon_pca10040_s132" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="/Users/tilboon/Desktop/nRF5_SDK_15.2.0_9412b96/examples/hornet_tracker_firmware/hornet_beacon" debugSearchPath="" autoConnectCapabilities="3199"/>
+ <EMStudioWindow activeProject="ble_app_beacon_pca10040_s132" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="/Users/tilboon/Desktop/nRF5_SDK_15.2.0_9412b96/examples/hornet_tracker_firmware/hornet_beacon" debugSearchPath="" autoConnectCapabilities="3711"/>
 </session>
